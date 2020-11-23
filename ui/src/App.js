@@ -1,23 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
+import SessionHistory from './SessionHistory'
+import "./App.css";
 
 function App() {
+  const [user, setUser] = useState("");
+  const [pass, setPass] = useState("");
+
+  const handleSubmit = async (event) => {
+    try {
+      event.preventDefault();
+      const data = {
+        user,
+        pass,
+      };
+      const response = await axios.post("http://localhost:4002/login", data);
+      console.log('res is:', response);
+      const token = response.data.accessToken;
+      localStorage.setItem('token', token);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="user">User:</label>
+        <input
+          id="user"
+          type="text"
+          value={user}
+          onChange={(e) => setUser(e.target.value)}
+        />
+        <label htmlFor="pass">Pass:</label>
+        <input
+          id="pass"
+          type="password"
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+        />
+        <button type="submit">LOGIN</button>
+      </form>
+      <SessionHistory />
     </div>
   );
 }
