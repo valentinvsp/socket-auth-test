@@ -27,20 +27,40 @@ function SessionHistory({ data }) {
                 'my-custom-header': 'abcd',
             },
             query: { token: localStorage.getItem('token') },
-            reconnection: false,
+            reconnection: true,
             reconnectionAttempts: 5,
-            // reconnectionDelay: 2000,
+            transports: ['websocket'],
+            reconnectionDelay: 1000,
             // autoConnect: false,
         });
         socket.on('new data', (data) => {
             setSessionData((d) => [...d, data]);
         });
+        socket.on('connect', () => {
+            console.log('connected');
+            console.log(socket.connected);
+        });
+        socket.on("connect_error", () => {
+            // socket.auth.token = "abcd";
+            // socket.connect();
+          });
+        socket.on('reconnect', () => {
+            console.log('reconnecting...');
+        })
+        socket.on('connection', () => {
+            console.log('connecting...');
+        })
+        socket.on('disconnect', () => {
+            console.log('disconnected');
+            console.log(socket.disconnected);
+        });
         return () => {
+            console.log('unmounting...');
             socket.disconnect();
         };
     }, []);
 
-    console.log('rendered me');
+    
 
     return (
         <div style={{ maxWidth: 800, margin: '0 auto' }}>

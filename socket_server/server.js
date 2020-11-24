@@ -25,10 +25,15 @@ io.use((socket, next) => {
         const token = socket.handshake.query.token;
 
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-            if (err) return res.sendStatus(403);
+            if (err) {
+                // socket.disconnect(true);
+                return res.sendStatus(403);
+                // next(new Error('Authentication error'));
+            } 
             socket.decoded = decoded;
             next();
         });
+
 
     } else {
         next(new Error('Authentication error'));

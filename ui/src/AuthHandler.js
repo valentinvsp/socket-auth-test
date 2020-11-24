@@ -1,27 +1,24 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import Button from '@material-ui/core/Button';
 import { logIn, logOut } from './redux/actions';
 import { connect } from 'react-redux';
+import LoginForm from './LoginForm'
 
 const AuthHandler = (props) => {
-    const [user, setUser] = useState('');
-    const [pass, setPass] = useState('');
+    const [modalIsOpen, setModalIsOpen] = useState(false);
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        props.logIn({ user, pass });
-    };
+    const toggleModal = () => {
+        setModalIsOpen(!modalIsOpen);
+    }
+
+    if (props.isLoggedIn) return <Button variant="contained" color="secondary" onClick={props.logOut}>LOGOUT</Button>;
 
     return (
-        <div>
-            <form onSubmit={handleSubmit} style={{ width: 'fit-content', marginLeft: 'auto' }}>
-                <label htmlFor="user">User:</label>
-                <input id="user" type="text" value={user} onChange={(e) => setUser(e.target.value)} />
-                <label htmlFor="pass">Pass:</label>
-                <input id="pass" type="password" value={pass} onChange={(e) => setPass(e.target.value)} />
-                <button type="submit">LOGIN</button>
-            </form>
-            <button onClick={props.logOut}>LOGOUT</button>
-        </div>
+        <>
+            <Button variant="contained" color="primary" onClick={toggleModal} >LOGIN</Button>
+            {ReactDOM.createPortal( <LoginForm open={modalIsOpen} toggleModal={toggleModal} />, document.querySelector('#portal'))}
+        </>
     );
 };
 
