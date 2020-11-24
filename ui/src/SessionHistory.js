@@ -28,6 +28,8 @@ function SessionHistory({ data }) {
             extraHeaders: {
                 'my-custom-header': 'abcd',
             },
+            query: { token: localStorage.getItem('token') }
+            
         });
         socket.on('new data', (data) => {
             setSessionData((d) => [...d, data]);

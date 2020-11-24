@@ -10,6 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 const httpServer = http.createServer(app);
+
 const io = socketio(httpServer, {
     cors: {
         origin: 'http://localhost:3000',
@@ -19,14 +20,19 @@ const io = socketio(httpServer, {
     },
 });
 
-const info = { iam: 'info' };
+io.use((socket, next) => {
+    if (socket.handshake.query && socket.handshake.query.token) {
+        const token = socket.handshake.query.token;
 
-app.get('/info', authenticateToken, (req, res) => {
-    res.json({ info, user: req.user });
-});
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+            if (err) return res.sendStatus(403);
+            socket.decoded = decoded;
+            next();
+        });
 
-app.get('/', (req, res) => {
-    res.send('<h1>Hello world</h1>');
+    } else {
+        next(new Error('Authentication error'));
+    }
 });
 
 io.on('connection', (socket) => {
@@ -51,13 +57,19 @@ io.on('connection', (socket) => {
     });
 });
 
-// app.listen(4001, () => {
-//     console.log('Socket server running on 4001');
-// });
+const info = { iam: 'info' };
+
+app.get('/info', authenticateToken, (req, res) => {
+    res.json({ info, user: req.user });
+});
 
 httpServer.listen(4001, () => {
     console.log('Socket server listening on port 4001');
 });
+
+
+
+
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
