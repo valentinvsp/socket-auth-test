@@ -1,52 +1,37 @@
-import React, { useState } from 'react'
-import axios from 'axios';
+import React, { useState } from 'react';
+import { logIn, logOut } from './redux/actions';
+import { connect } from 'react-redux';
 
-const AuthHandler = () => {
+const AuthHandler = (props) => {
     const [user, setUser] = useState('');
     const [pass, setPass] = useState('');
 
-    const handleSubmit = async (event) => {
-        try {
-            event.preventDefault();
-            const data = {
-                user,
-                pass,
-			};
-			const response = await axios.post('login', data);
-            console.log('res is:', response);
-            const token = response.data.accessToken;
-            localStorage.setItem('token', token);
-        } catch (e) {
-            console.error(e);
-        }
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        props.logIn({ user, pass });
     };
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-    }
 
     return (
         <div>
-            <form onSubmit={handleSubmit} style={{width: 'fit-content', marginLeft: 'auto'}}>
+            <form onSubmit={handleSubmit} style={{ width: 'fit-content', marginLeft: 'auto' }}>
                 <label htmlFor="user">User:</label>
-                <input
-                    id="user"
-                    type="text"
-                    value={user}
-                    onChange={(e) => setUser(e.target.value)}
-                />
+                <input id="user" type="text" value={user} onChange={(e) => setUser(e.target.value)} />
                 <label htmlFor="pass">Pass:</label>
-                <input
-                    id="pass"
-                    type="password"
-                    value={pass}
-                    onChange={(e) => setPass(e.target.value)}
-                />
+                <input id="pass" type="password" value={pass} onChange={(e) => setPass(e.target.value)} />
                 <button type="submit">LOGIN</button>
-                <button onClick={handleLogout}>LOGOUT</button>
             </form>
+            <button onClick={props.logOut}>LOGOUT</button>
         </div>
-    )
-}
+    );
+};
 
-export default AuthHandler
+const mapStateToProps = (state, ownProps) => ({
+    isLoggedIn: state.authReducer.authenticated,
+});
+
+const mapDispatchToProps = {
+    logIn,
+    logOut,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthHandler);

@@ -16,28 +16,31 @@ const useStyles = makeStyles({
 });
 
 function SessionHistory({ data }) {
-    const [sessionData, setSessionData] = useState([])
+    const [sessionData, setSessionData] = useState([]);
 
     const classes = useStyles();
 
     useEffect(() => {
-        // check token
-        // open socket (with token?)
         const socket = io('http://localhost:4001/', {
             withCredentials: true,
             extraHeaders: {
                 'my-custom-header': 'abcd',
             },
-            query: { token: localStorage.getItem('token') }
-            
+            query: { token: localStorage.getItem('token') },
+            reconnection: false,
+            reconnectionAttempts: 5,
+            // reconnectionDelay: 2000,
+            // autoConnect: false,
         });
         socket.on('new data', (data) => {
             setSessionData((d) => [...d, data]);
-          });
+        });
         return () => {
-            // cleanup
+            socket.disconnect();
         };
     }, []);
+
+    console.log('rendered me');
 
     return (
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
@@ -62,15 +65,9 @@ function SessionHistory({ data }) {
                                         <TableCell component="th" scope="row">
                                             {id}
                                         </TableCell>
-                                        <TableCell align="right">
-                                            {new Date(time).toUTCString()}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {product}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {ok ? 'OK' : 'BAD!'}
-                                        </TableCell>
+                                        <TableCell align="right">{new Date(time).toUTCString()}</TableCell>
+                                        <TableCell align="right">{product}</TableCell>
+                                        <TableCell align="right">{ok ? 'OK' : 'BAD!'}</TableCell>
                                     </TableRow>
                                 ))}
                     </TableBody>

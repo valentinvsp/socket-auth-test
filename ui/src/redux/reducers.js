@@ -1,4 +1,4 @@
-import { LOG_IN, LOG_OUT } from "./action-types";
+import { LOG_OUT, UPDATE_USER } from "./action-types";
 import { combineReducers } from "redux";
 
 const initialState = {
@@ -8,7 +8,7 @@ const initialState = {
 
 export function authReducer(state = initialState, action) {
   switch (action.type) {
-    case LOG_IN: {
+    case UPDATE_USER: {
       const { username } = action.payload;
       return {
         ...state,
